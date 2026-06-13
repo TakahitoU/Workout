@@ -1,0 +1,569 @@
+<meta charset="utf-8" />
+<title>筋トレ記録</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="筋トレ記録" />
+<meta name="theme-color" content="#17140F" />
+<style>
+  :root{
+    --bg:#17140F; --surface:#221E18; --surface2:#2C2720; --line:#38322A;
+    --text:#F2EDE4; --dim:#9A9186; --faint:#6E665B;
+    --ember:#FF6A2B; --ember-soft:rgba(255,106,43,.14);
+    --up:#5FD68A; --down:#C98A6A; --gold:#E8B84B;
+    --font-ui:-apple-system,system-ui,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif;
+    --font-num:ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{
+    font-family:var(--font-ui); background:var(--bg); color:var(--text);
+    line-height:1.5; max-width:560px; margin:0 auto; padding:0 14px 120px;
+    -webkit-text-size-adjust:100%;
+  }
+  /* header */
+  header{position:sticky;top:0;z-index:20;background:linear-gradient(var(--bg) 78%,transparent);padding:18px 0 10px}
+  .eyebrow{font-size:11px;letter-spacing:.18em;color:var(--ember);font-weight:700;text-transform:uppercase}
+  .eyebrow .sub{color:var(--faint);font-weight:600;letter-spacing:.04em;text-transform:none;display:block;margin-top:3px;font-size:11.5px}
+  .tabs{display:flex;gap:6px;margin-top:12px}
+  .tab{flex:1;padding:9px 0;text-align:center;font-weight:700;font-size:14px;border:1px solid var(--line);
+    border-radius:11px;background:var(--surface);color:var(--dim);cursor:pointer}
+  .tab.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+  /* log controls */
+  .controls{display:flex;gap:8px;align-items:center;margin:14px 0 4px}
+  .controls input[type=date]{
+    flex:1;background:var(--surface);border:1px solid var(--line);color:var(--text);
+    font-family:var(--font-num);font-size:14px;padding:9px 11px;border-radius:11px;min-height:42px}
+  .seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+  .seg button{padding:9px 14px;border:0;background:transparent;color:var(--dim);font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-ui)}
+  .seg button.on{background:var(--ember);color:#1a0e06}
+  .menu-note{color:var(--faint);font-size:12px;margin:8px 2px 14px}
+  /* exercise card */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+  .card-head{display:flex;align-items:flex-start;gap:8px}
+  .num{font-family:var(--font-num);font-size:12px;color:var(--faint);min-width:20px;padding-top:3px}
+  .card-title{flex:1}
+  .card-title .name{font-weight:700;font-size:16px}
+  .card-title .sub{color:var(--dim);font-size:12px;margin-top:1px}
+  .target{color:var(--ember);font-size:12px;font-weight:600;margin-top:6px;font-family:var(--font-num)}
+  .badge{display:none;align-items:center;gap:5px;margin-top:9px;background:rgba(232,184,75,.12);
+    border:1px solid rgba(232,184,75,.4);color:var(--gold);font-size:12px;font-weight:700;padding:6px 10px;border-radius:9px}
+  .badge.show{display:inline-flex}
+  /* sets */
+  .sets{margin-top:12px;display:flex;flex-direction:column;gap:9px}
+  .set{background:var(--surface2);border-radius:12px;padding:10px 11px}
+  .set-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+  .set-label{font-size:13px;font-weight:700;color:var(--dim)}
+  .set-label b{color:var(--text);font-family:var(--font-num);font-size:15px;margin-right:2px}
+  .set-last{font-size:12px;color:var(--faint);font-family:var(--font-num)}
+  .set-last .lt{color:var(--dim)}
+  .delta{font-weight:700;margin-left:5px}
+  .delta.up{color:var(--up)} .delta.down{color:var(--down)} .delta.same{color:var(--dim)}
+  .ins{display:flex;align-items:center;gap:7px}
+  .ins input{
+    background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:9px;
+    font-family:var(--font-num);font-size:18px;text-align:center;padding:8px 4px;min-height:44px;width:100%}
+  .ins input:focus{outline:none;border-color:var(--ember)}
+  .ins .u{color:var(--faint);font-size:13px;font-family:var(--font-ui)}
+  .ins .x{color:var(--faint);font-size:15px}
+  .w-wrap{flex:1.3} .r-wrap{flex:1}
+  /* form cues */
+  .cues-toggle{margin-top:11px;background:none;border:0;color:var(--dim);font-size:12.5px;font-weight:600;
+    cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:5px;font-family:var(--font-ui)}
+  .cues-toggle .chev{transition:transform .18s}
+  .cues{display:none;margin-top:8px;padding:11px 12px;background:var(--bg);border-radius:11px;border:1px solid var(--line)}
+  .cues.open{display:block}
+  .cues ul{margin:0;padding-left:17px}
+  .cues li{font-size:12.5px;color:var(--dim);margin:3px 0}
+  /* save bar */
+  .savebar{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:560px;margin:0 auto;
+    padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 28%)}
+  .save{width:100%;border:0;border-radius:14px;padding:15px;font-size:16px;font-weight:800;font-family:var(--font-ui);
+    background:var(--ember);color:#1a0e06;cursor:pointer}
+  .save:active{transform:translateY(1px)}
+  .save:disabled{background:var(--surface2);color:var(--faint)}
+  .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);z-index:40;
+    background:var(--text);color:var(--bg);font-weight:700;font-size:14px;padding:11px 18px;border-radius:30px;
+    opacity:0;transition:.25s;pointer-events:none;max-width:90%}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* history */
+  .hist-empty{text-align:center;color:var(--faint);padding:60px 20px;font-size:14px}
+  .hist-empty .big{font-size:15px;color:var(--dim);margin-bottom:6px;font-weight:600}
+  .hsession{background:var(--surface);border:1px solid var(--line);border-radius:16px;margin-bottom:11px;overflow:hidden}
+  .hhead{display:flex;align-items:center;gap:10px;padding:14px;cursor:pointer}
+  .hdate{font-family:var(--font-num);font-weight:700;font-size:15px}
+  .htype{font-size:11px;font-weight:700;padding:3px 8px;border-radius:7px}
+  .htype.gym{background:var(--ember-soft);color:var(--ember)}
+  .htype.home{background:rgba(95,214,138,.12);color:var(--up)}
+  .hmeta{margin-left:auto;color:var(--faint);font-size:12px;font-family:var(--font-num)}
+  .hbody{display:none;padding:0 14px 8px}
+  .hbody.open{display:block}
+  .hex{padding:9px 0;border-top:1px solid var(--line)}
+  .hex .hn{font-size:13.5px;font-weight:600;margin-bottom:3px}
+  .hex .hs{font-family:var(--font-num);font-size:13px;color:var(--dim)}
+  .hdel{margin:4px 14px 14px;background:none;border:1px solid var(--line);color:var(--down);
+    font-size:12px;font-weight:600;padding:7px 12px;border-radius:9px;cursor:pointer;font-family:var(--font-ui)}
+  .footer{margin-top:26px;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
+  .exp{background:var(--surface);border:1px solid var(--line);color:var(--text);font-size:13px;font-weight:700;
+    padding:11px 18px;border-radius:11px;cursor:pointer;font-family:var(--font-ui)}
+  .exp:active{transform:translateY(1px)}
+  .reset{background:none;border:0;color:var(--faint);font-size:12px;cursor:pointer;text-decoration:underline;font-family:var(--font-ui)}
+  .loading{text-align:center;color:var(--faint);padding:50px;font-size:14px}
+  .sync{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:24px}
+  .sync-h{font-weight:700;font-size:15px}
+  .sync-desc{color:var(--faint);font-size:12px;margin:5px 0 12px}
+  .sync-l{display:block;font-size:12px;color:var(--dim);font-weight:600;margin:10px 0 4px}
+  .sync-i{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:9px;
+    padding:10px 11px;font-size:13px;font-family:var(--font-num);min-height:42px}
+  .sync-i:focus{outline:none;border-color:var(--ember)}
+  .sync-row{display:flex;gap:8px;margin-top:13px}
+  .sync-row .exp{flex:1}
+  .sync-status{color:var(--faint);font-size:11.5px;font-family:var(--font-num);margin-top:11px;text-align:center}
+  .sync-test{display:block;margin:10px auto 0;background:none;border:0;color:var(--ember);font-size:12.5px;
+    font-weight:600;cursor:pointer;text-decoration:underline;font-family:var(--font-ui)}
+</style>
+
+<header>
+  <div class="eyebrow">トレーニング記録<span class="sub">胸・腕を、前回より少しだけ。</span></div>
+  <div class="tabs">
+    <div class="tab on" data-tab="log" id="tabLog">記録</div>
+    <div class="tab" data-tab="hist" id="tabHist">履歴</div>
+  </div>
+</header>
+
+<main id="view"><div class="loading">読み込み中…</div></main>
+
+<div class="savebar" id="savebar" style="display:none">
+  <button class="save" id="saveBtn">この日の記録を保存</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+//// 計画データ（workout_plan.md より） ////
+const PLANS = {
+  gym: {
+    label: "ジム（90分）",
+    note: "胸の重い種目から。腕は後半、腹筋は最後。時間がなければ腹筋→脚→OHエクステンションの順に削る。",
+    ex: [
+      { id:"smith_bench", name:"スミスベンチプレス", sub:"胸メイン・厚みを作る",
+        target:"40〜45kg / 8〜10回 ×3（最後は限界近く）", sets:3, weight:true, unit:"回",
+        levelUp:{reps:10, note:"3セット全部10回できたら次回少し重く"},
+        cues:["前腕が床と垂直になる手幅","握りは少し内側（右肩の痛み対策）","肩をすくめない・胸を軽く張る","肩前側が痛むなら重量を下げる","3セット合計24回以上が目標"] },
+      { id:"incline", name:"スミス・インクラインベンチプレス", sub:"胸上部・胸板の見た目",
+        target:"32.5〜35kg / 8〜10回 ×3", sets:3, weight:true, unit:"回",
+        levelUp:{reps:10, note:"3セット全部10回できたら次回少し重く"},
+        cues:["ベンチ角度は15〜30度","角度を上げすぎると肩前側に逃げる","肩に違和感がある日は無理しない"] },
+      { id:"lat_pulldown", name:"ラットプルダウン", sub:"姿勢改善・巻き肩対策",
+        target:"35kg / 10回 ×3", sets:3, weight:true, unit:"回",
+        levelUp:{reps:10, note:"35×10×3が安定したら37.5〜40kgへ"},
+        cues:["腕で引くより肘を下に落とす","首をすくめない","胸を少し張る","鎖骨〜胸上部に引く"] },
+      { id:"leg_press", name:"レッグプレス", sub:"健康維持・土台作り",
+        target:"10〜12回 ×3（追い込みすぎない）", sets:3, weight:true, unit:"回",
+        levelUp:null,
+        cues:["あと2回できそうな所で止める","腰・臀部に違和感が出たら浅めに"] },
+      { id:"fly", name:"ペックフライ / ダンベルフライ", sub:"胸を内側に寄せる感覚",
+        target:"12〜15回 ×3（重さよりフォーム）", sets:3, weight:true, unit:"回",
+        levelUp:{reps:15, note:"3セットとも15回近くで次回少し重く"},
+        cues:["優先：ペック→ケーブル→ダンベル","胸を内側に寄せる感覚を重視","肘は軽く曲げて固定・下ろしすぎない","肩を前に出さない（違和感ある日は軽め）"] },
+      { id:"triceps_pushdown", name:"ケーブル・トライセプスプレスダウン", sub:"腕の太さ・三頭筋",
+        target:"10〜15回 ×3（最後は限界近く）", sets:3, weight:true, unit:"回",
+        levelUp:{reps:15, note:"3セットとも15回近くで次回少し重く"},
+        cues:["肘は体の横に固定","肩を動かさない","肘から先だけ伸ばす"] },
+      { id:"ez_curl", name:"EZバー・カール", sub:"上腕二頭筋・力こぶ",
+        target:"左右7.5kg前後 / 8〜12回 ×3（最後は限界近く）", sets:3, weight:true, unit:"回",
+        levelUp:{reps:15, note:"3セットとも15回近くで次回少し重く"},
+        cues:["反動を使いすぎない","下ろす動作をゆっくり","肘を前後に動かしすぎない"] },
+      { id:"hammer_curl", name:"ハンマーカール", sub:"前腕・腕橈骨筋",
+        target:"片手8kg / 10回 ×3（最後は限界近く）", sets:3, weight:true, unit:"回",
+        levelUp:{reps:15, note:"3セットとも15回近くで次回少し重く"},
+        cues:["親指が上を向くように持つ","肘を前後に振らない","前腕〜肘付近に効かせる"] },
+      { id:"oh_triceps", name:"OHトライセプスエクステンション", sub:"三頭筋の追加刺激",
+        target:"10kg / 10〜12回 ×2", sets:2, weight:true, unit:"回",
+        levelUp:null,
+        cues:["プレスダウンを入れた日は2セットでOK","肘や肩に違和感がある日は省略可"] },
+      { id:"abs", name:"腹筋（クランチ系）", sub:"腹直筋・体幹・姿勢",
+        target:"10〜15回 ×3（時間がなければ2セット）", sets:3, weight:false, unit:"回",
+        levelUp:null,
+        cues:["アブドミナル/ケーブル/デクラインクランチ","左右に振る種目より腹直筋に効かせる"] },
+    ]
+  },
+  home: {
+    label: "家トレ（30分・自重）",
+    note: "サーキット形式。1周ずつ違う種目を回す。2〜3周。種目間30〜60秒、1周ごと1〜2分休む。",
+    ex: [
+      { id:"pushup", name:"腕立て伏せ", sub:"胸に効かせるフォームで",
+        target:"10〜12回 ×3周", sets:3, weight:false, unit:"回",
+        levelUp:null,
+        cues:["手幅は肩幅より拳1〜2個分広め","肘は斜め後ろ45度","胸を床に近づける","2秒で下ろし1秒で上げる"] },
+      { id:"reverse_snow", name:"リバーススノーエンジェル", sub:"姿勢改善・肩甲骨",
+        target:"10回 ×3周", sets:3, weight:false, unit:"回",
+        levelUp:null,
+        cues:["うつ伏せで両腕を少し浮かせる","大きく円を描くように回す","肩甲骨まわりを使う感覚"] },
+      { id:"dead_bug", name:"デッドバグ", sub:"腹・体幹・腰の安定",
+        target:"左右10回 ×3周", sets:3, weight:false, unit:"回",
+        levelUp:null,
+        cues:["腰を反らない","手足をゆっくり動かす","反動を使わない"] },
+      { id:"narrow_pushup", name:"ナロープッシュアップ", sub:"三頭筋・腕の太さ",
+        target:"8〜10回 ×3周", sets:3, weight:false, unit:"回",
+        levelUp:null,
+        cues:["普通の腕立てより手幅を狭く","肘を開きすぎない","きつければ膝つきでOK"] },
+      { id:"plank", name:"プランク", sub:"体幹の安定",
+        target:"30〜45秒 ×3周", sets:3, weight:false, unit:"秒",
+        levelUp:null,
+        cues:["頭から足まで一直線","腰を反らない・肩をすくめない","呼吸を止めない"] },
+    ]
+  }
+};
+
+//// 状態 ////
+const S_SESS = "wlog_sessions", S_DRAFT = "wlog_draft", S_SYNC = "wlog_sync";
+let sessions = [];
+let draft = { gym:{date:today(), entries:{}}, home:{date:today(), entries:{}} };
+let curTab = "log", curType = "gym";
+let saveTimer = null;
+
+function today(){ const d=new Date(); const o=d.getTimezoneOffset(); return new Date(d-o*60000).toISOString().slice(0,10); }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function num(v){ if(v===""||v==null) return null; const n=parseFloat(v); return isNaN(n)?null:n; }
+
+//// ストレージ（ブラウザ内に保存） ////
+function loadAll(){
+  try{ const v=localStorage.getItem(S_SESS); if(v) sessions=JSON.parse(v); }catch(e){ sessions=[]; }
+  try{ const v=localStorage.getItem(S_DRAFT); if(v){ const d=JSON.parse(v); if(d&&d.gym&&d.home) draft=d; } }catch(e){}
+}
+function saveSessions(){ try{ localStorage.setItem(S_SESS, JSON.stringify(sessions)); }catch(e){ toast("保存に失敗しました"); } }
+function queueDraftSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(()=>{ try{ localStorage.setItem(S_DRAFT, JSON.stringify(draft)); }catch(e){} }, 400); }
+
+//// 前回記録 ////
+function lastFor(exId, type){
+  for(const s of sessions){ if(s.type!==type) continue; const e=s.entries.find(x=>x.exId===exId); if(e) return e.sets; }
+  return null; // sessions is kept sorted desc
+}
+
+//// 描画 ////
+function render(){
+  const v = document.getElementById("view");
+  document.getElementById("savebar").style.display = curTab==="log" ? "block" : "none";
+  document.getElementById("tabLog").classList.toggle("on", curTab==="log");
+  document.getElementById("tabHist").classList.toggle("on", curTab==="hist");
+  v.innerHTML = curTab==="log" ? renderLog() : renderHist();
+  if(curTab==="log"){ bindLog(); document.querySelectorAll(".card").forEach(c=>refreshCard(c)); updateSaveBtn(); }
+}
+
+function renderLog(){
+  const p = PLANS[curType];
+  let h = `<div class="controls">
+    <input type="date" id="dateInput" value="${esc(draft[curType].date)}">
+    <div class="seg">
+      <button data-type="gym" class="${curType==="gym"?"on":""}">ジム</button>
+      <button data-type="home" class="${curType==="home"?"on":""}">家トレ</button>
+    </div>
+  </div>
+  <div class="menu-note">${esc(p.note)}</div>`;
+  p.ex.forEach((ex,i)=>{
+    const last = lastFor(ex.id, curType);
+    h += `<div class="card" data-ex="${ex.id}">
+      <div class="card-head">
+        <div class="num">${String(i+1).padStart(2,"0")}</div>
+        <div class="card-title">
+          <div class="name">${esc(ex.name)}</div>
+          <div class="sub">${esc(ex.sub)}</div>
+          <div class="target">${esc(ex.target)}</div>
+        </div>
+      </div>
+      <div class="badge"><span>★</span><span class="badge-txt"></span></div>
+      <div class="sets">${setRows(ex,last)}</div>
+      <button class="cues-toggle"><span class="chev">▸</span>フォームの注意点</button>
+      <div class="cues"><ul>${ex.cues.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>
+    </div>`;
+  });
+  return h;
+}
+
+function setRows(ex,last){
+  const d = draft[curType].entries[ex.id] || [];
+  let h="";
+  for(let i=0;i<ex.sets;i++){
+    const cur = d[i]||{};
+    const lt = last&&last[i] ? last[i] : null;
+    let ltTxt="";
+    if(lt){ ltTxt = ex.weight ? `${fmt(lt.w)}×${fmt(lt.r)}` : `${fmt(lt.r)}${ex.unit}`; }
+    const lab = curType==="home" ? "周" : "セット";
+    const wField = ex.weight ? `<div class="w-wrap"><input inputmode="decimal" data-f="w" data-i="${i}" value="${cur.w??""}" placeholder="${lt?fmt(lt.w):""}"></div><span class="x">×</span>` : "";
+    h += `<div class="set" data-i="${i}">
+      <div class="set-top">
+        <div class="set-label"><b>${i+1}</b>${lab}目</div>
+        <div class="set-last">${lt?`<span class="lt">前回 ${ltTxt}</span><span class="delta"></span>`:`<span class="lt">前回なし</span>`}</div>
+      </div>
+      <div class="ins">
+        ${wField}
+        <div class="r-wrap"><input inputmode="numeric" data-f="r" data-i="${i}" value="${cur.r??""}" placeholder="${lt?fmt(lt.r):""}"></div>
+        <span class="u">${ex.unit==="秒"?"秒":"回"}</span>
+      </div>
+    </div>`;
+  }
+  return h;
+}
+function fmt(n){ return n==null?"–":(Number.isInteger(n)?n:n); }
+
+function bindLog(){
+  const di = document.getElementById("dateInput");
+  if(di) di.addEventListener("change", e=>{ draft[curType].date=e.target.value||today(); queueDraftSave(); });
+  document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{ curType=b.dataset.type; render(); }));
+  document.querySelectorAll(".cues-toggle").forEach(b=>b.addEventListener("click",()=>{
+    const c=b.parentElement.querySelector(".cues"); const open=c.classList.toggle("open");
+    b.querySelector(".chev").style.transform = open?"rotate(90deg)":"";
+  }));
+  document.querySelectorAll(".card input[data-f]").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const card=inp.closest(".card"); const exId=card.dataset.ex;
+      const i=+inp.dataset.i, f=inp.dataset.f;
+      const arr = draft[curType].entries[exId] || (draft[curType].entries[exId]=[]);
+      arr[i] = arr[i]||{}; arr[i][f]=num(inp.value);
+      refreshCard(card); updateSaveBtn(); queueDraftSave();
+    });
+  });
+}
+
+function refreshCard(card){
+  const exId=card.dataset.ex; const ex=PLANS[curType].ex.find(x=>x.id===exId);
+  const last=lastFor(exId,curType);
+  const arr=draft[curType].entries[exId]||[];
+  // per-set delta
+  card.querySelectorAll(".set").forEach(setEl=>{
+    const i=+setEl.dataset.i; const delta=setEl.querySelector(".delta"); if(!delta) return;
+    const cur=arr[i]||{}; const lt=last&&last[i]?last[i]:null;
+    const curR=cur.r, ltR=lt?lt.r:null;
+    delta.className="delta"; delta.textContent="";
+    if(curR!=null && ltR!=null){
+      const wUp   = ex.weight && cur.w!=null && lt.w!=null && cur.w>lt.w;
+      const wDown = ex.weight && cur.w!=null && lt.w!=null && cur.w<lt.w;
+      if(wUp || curR>ltR){ delta.classList.add("up"); delta.textContent="↑"; }
+      else if(wDown || curR<ltR){ delta.classList.add("down"); delta.textContent="↓"; }
+      else { delta.classList.add("same"); delta.textContent="→"; }
+    }
+  });
+  // level-up badge
+  const badge=card.querySelector(".badge"); const txt=card.querySelector(".badge-txt");
+  if(ex.levelUp){
+    const reps = []; for(let i=0;i<ex.sets;i++){ reps.push((arr[i]&&arr[i].r!=null)?arr[i].r:null); }
+    const allFilled = reps.every(r=>r!=null);
+    const hit = allFilled && reps.every(r=>r>=ex.levelUp.reps);
+    if(hit){ badge.classList.add("show"); txt.textContent=ex.levelUp.note; }
+    else badge.classList.remove("show");
+  }
+}
+
+function entriesFilled(type){
+  const ents=draft[type].entries; let n=0;
+  for(const id in ents){ if((ents[id]||[]).some(s=>s&&s.r!=null)) n++; }
+  return n;
+}
+function updateSaveBtn(){
+  const btn=document.getElementById("saveBtn"); const n=entriesFilled(curType);
+  btn.disabled = n===0;
+  btn.textContent = n===0 ? "回数を入力すると保存できます" : `この日の記録を保存（${n}種目）`;
+}
+
+//// 保存 ////
+async function saveSession(){
+  const type=curType; const ents=draft[type].entries;
+  const entries=[];
+  PLANS[type].ex.forEach(ex=>{
+    const arr=ents[ex.id]||[];
+    const sets=arr.filter(s=>s&&s.r!=null).map(s=>ex.weight?{w:s.w??null,r:s.r}:{r:s.r});
+    if(sets.length) entries.push({exId:ex.id, name:ex.name, weight:ex.weight, unit:ex.unit, sets});
+  });
+  if(!entries.length){ toast("入力がありません"); return; }
+  const sess={ id:Date.now(), date:draft[type].date||today(), type, entries };
+  sessions.unshift(sess);
+  sessions.sort((a,b)=> (b.date.localeCompare(a.date)) || (b.id-a.id));
+  await saveSessions();
+  draft[type]={date:today(), entries:{}};
+  queueDraftSave();
+  toast("保存しました");
+  if(getSync().url) pushSync(true);
+  render();
+}
+
+//// 履歴 ////
+function renderHist(){
+  let h="";
+  if(!sessions.length){
+    h+=`<div class="hist-empty"><div class="big">まだ記録がありません</div>記録タブで回数を入力して保存すると、ここに残ります。次回その種目の「前回」として表示されます。</div>`;
+  } else {
+  sessions.forEach(s=>{
+    const p=PLANS[s.type]; const tlabel=s.type==="gym"?"ジム":"家トレ";
+    h+=`<div class="hsession" data-id="${s.id}">
+      <div class="hhead">
+        <span class="hdate">${esc(s.date)}</span>
+        <span class="htype ${s.type}">${tlabel}</span>
+        <span class="hmeta">${s.entries.length}種目 ▾</span>
+      </div>
+      <div class="hbody">
+        ${s.entries.map(e=>{
+          const line = e.sets.map(st=> e.weight ? `${fmt(st.w)}×${fmt(st.r)}` : `${fmt(st.r)}${e.unit}`).join(" / ");
+          return `<div class="hex"><div class="hn">${esc(e.name)}</div><div class="hs">${esc(line)}</div></div>`;
+        }).join("")}
+      </div>
+      <button class="hdel">この記録を削除</button>
+    </div>`;
+  });
+  }
+  h+=`<div class="sync">
+    <div class="sync-h">Googleスプレッドシートへ自動同期</div>
+    <div class="sync-desc">記録を保存するたびにシートが自動更新されます。設定方法はチャットの手順を参照。</div>
+    <label class="sync-l">Web App の URL</label>
+    <input class="sync-i" id="syncUrl" inputmode="url" placeholder="https://script.google.com/macros/s/.../exec">
+    <label class="sync-l">合言葉（任意・スクリプトと同じ文字列）</label>
+    <input class="sync-i" id="syncToken" placeholder="例：myworkout2026">
+    <div class="sync-row">
+      <button class="exp" id="syncSave">設定を保存</button>
+      <button class="exp" id="syncNow">今すぐ同期</button>
+    </div>
+    <div class="sync-status" id="syncStatus"></div>
+    <button class="sync-test" id="syncTest">接続テスト（シートに1行送る）</button>
+  </div>
+  <div class="footer">
+    <button class="exp" id="exportCsv">スプレッドシート用に書き出す（CSV）</button>
+    <button class="reset" id="resetAll">すべてのデータを削除</button>
+  </div>`;
+  return h;
+}
+function bindHist(){
+  document.querySelectorAll(".hhead").forEach(hd=>hd.addEventListener("click",()=>{
+    const body=hd.parentElement.querySelector(".hbody"); const open=body.classList.toggle("open");
+    hd.querySelector(".hmeta").innerHTML = hd.querySelector(".hmeta").innerHTML.replace(/[▾▴]/, open?"▴":"▾");
+  }));
+  document.querySelectorAll(".hdel").forEach(b=>b.addEventListener("click",async()=>{
+    const id=+b.closest(".hsession").dataset.id;
+    if(!confirm("この記録を削除しますか？")) return;
+    sessions=sessions.filter(s=>s.id!==id); await saveSessions(); render();
+  }));
+  const ra=document.getElementById("resetAll");
+  if(ra) ra.addEventListener("click",async()=>{
+    if(!confirm("すべての記録と入力中のデータを削除します。元に戻せません。")) return;
+    sessions=[]; draft={gym:{date:today(),entries:{}},home:{date:today(),entries:{}}};
+    try{ localStorage.removeItem(S_SESS); localStorage.removeItem(S_DRAFT); }catch(e){}
+    render();
+  });
+  const ec=document.getElementById("exportCsv");
+  if(ec) ec.addEventListener("click", exportCSV);
+  // sync settings
+  const cfg=getSync();
+  const su=document.getElementById("syncUrl"), st=document.getElementById("syncToken");
+  if(su) su.value=cfg.url||""; if(st) st.value=cfg.token||"";
+  updateSyncStatus();
+  const ss=document.getElementById("syncSave");
+  if(ss) ss.addEventListener("click",()=>{
+    const c=getSync(); c.url=(su.value||"").trim(); c.token=(st.value||"").trim(); setSync(c);
+    updateSyncStatus(); toast("設定を保存しました");
+  });
+  const sn=document.getElementById("syncNow");
+  if(sn) sn.addEventListener("click",()=>{
+    const c=getSync(); c.url=(su.value||"").trim(); c.token=(st.value||"").trim(); setSync(c);
+    pushSync(false);
+  });
+  const stb=document.getElementById("syncTest");
+  if(stb) stb.addEventListener("click", testSync);
+}
+
+//// 接続テスト（記録なしでも送れる） ////
+async function testSync(){
+  const su=document.getElementById("syncUrl"), st=document.getElementById("syncToken");
+  const c=getSync(); c.url=(su.value||"").trim(); c.token=(st.value||"").trim(); setSync(c);
+  if(!c.url){ toast("先にURLを入力してください"); return; }
+  const now=new Date().toLocaleString("ja-JP");
+  try{
+    await fetch(c.url,{
+      method:"POST", mode:"no-cors",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify({ token:c.token||"", rows:[["接続テスト","日時"],["アプリから届きました",now]] })
+    });
+    toast("テスト送信しました。シートを確認してください");
+  }catch(e){ toast("送信に失敗（URLとネット接続を確認）"); }
+}
+
+//// 行データ（CSV・同期 共通） ////
+function buildRows(){
+  const rows=[["日付","メニュー","種目","セット","重量(kg)","値","単位"]];
+  const sorted=[...sessions].sort((a,b)=> a.date.localeCompare(b.date) || (a.id-b.id));
+  sorted.forEach(s=>{
+    const tlabel = s.type==="gym" ? "ジム" : "家トレ";
+    s.entries.forEach(e=>{
+      e.sets.forEach((st,si)=>{
+        rows.push([ s.date, tlabel, e.name, si+1,
+          (e.weight && st.w!=null) ? st.w : "",
+          st.r!=null ? st.r : "",
+          e.unit ]);
+      });
+    });
+  });
+  return rows;
+}
+
+//// CSV書き出し ////
+function exportCSV(){
+  if(!sessions.length){ toast("記録がありません"); return; }
+  const csv = buildRows().map(r=> r.map(cell=>{
+    const v=String(cell);
+    return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
+  }).join(",")).join("\r\n");
+  try{
+    const blob = new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href=url; a.download="workout_"+today().replace(/-/g,"")+".csv";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    toast("CSVを書き出しました");
+  }catch(e){ toast("書き出しに失敗しました"); }
+}
+
+//// スプレッドシート同期 ////
+function getSync(){ try{ const v=localStorage.getItem(S_SYNC); if(v) return JSON.parse(v); }catch(e){} return {url:"",token:"",lastSync:null}; }
+function setSync(c){ try{ localStorage.setItem(S_SYNC, JSON.stringify(c)); }catch(e){} }
+async function pushSync(silent){
+  const cfg=getSync();
+  if(!cfg.url){ if(!silent) toast("同期先URLが未設定です"); return; }
+  if(!sessions.length){ if(!silent) toast("送るデータがありません"); return; }
+  try{
+    await fetch(cfg.url,{
+      method:"POST", mode:"no-cors",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify({ token: cfg.token||"", rows: buildRows() })
+    });
+    cfg.lastSync = new Date().toISOString(); setSync(cfg);
+    if(!silent) toast("スプレッドシートへ送信しました");
+    updateSyncStatus();
+  }catch(e){ if(!silent) toast("同期に失敗（ネット接続を確認）"); }
+}
+function updateSyncStatus(){
+  const el=document.getElementById("syncStatus"); if(!el) return;
+  const cfg=getSync();
+  const set = cfg.url ? "設定済み" : "未設定";
+  const last = cfg.lastSync ? new Date(cfg.lastSync).toLocaleString("ja-JP") : "なし";
+  el.textContent = `同期先：${set}　最終同期：${last}`;
+}
+
+//// toast ////
+let tT=null;
+function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(tT); tT=setTimeout(()=>t.classList.remove("show"),1800); }
+
+//// 起動 ////
+document.getElementById("tabLog").addEventListener("click",()=>{ curTab="log"; render(); });
+document.getElementById("tabHist").addEventListener("click",()=>{ curTab="hist"; render(); });
+document.getElementById("saveBtn").addEventListener("click",saveSession);
+
+(async function init(){
+  await loadAll();
+  if(!draft.gym.date) draft.gym.date=today();
+  if(!draft.home.date) draft.home.date=today();
+  render();
+})();
+
+// re-bind history after render when on hist tab
+const _render=render;
+render=function(){ _render(); if(curTab==="hist") bindHist(); };
+</script>
