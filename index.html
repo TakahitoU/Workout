@@ -39,10 +39,10 @@
   #view{animation:fade .2s ease}
 
   /* log controls */
-  .controls{display:flex;flex-direction:column;gap:9px;margin:14px 0 0}
-  .date-in{width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text);
+  .controls{display:flex;gap:8px;align-items:center;margin:14px 0 0}
+  .date-in{flex:0 0 auto;background:var(--surface);border:1px solid var(--line);color:var(--text);
     font-family:var(--font-num);font-size:14px;padding:10px 12px;border-radius:12px;min-height:44px}
-  .modes{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+  .modes{flex:1;display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
   .modes button{flex:1;padding:9px 0;border:0;background:transparent;color:var(--dim);font-weight:700;font-size:13px;
     border-radius:9px;font-family:var(--font-ui);transition:.15s}
   .modes button.on{background:var(--ember);color:#1a0b04;box-shadow:0 2px 8px rgba(255,107,48,.35)}
@@ -760,6 +760,9 @@ function renderHist(){
     <button class="sync-test" id="syncTest">接続テスト（シートに1行送る）</button>
   </div>
   <div class="footer">
+    <button class="exp" id="backupBtn">💾 データをバックアップ</button>
+    <button class="exp" id="restoreBtn">📂 バックアップから復元</button>
+    <input type="file" id="restoreFile" accept=".json" style="display:none">
     <button class="exp" id="exportCsv">スプレッドシート用に書き出す（CSV）</button>
     <button class="reset" id="resetAll">すべてのデータを削除</button>
   </div>`;
@@ -776,6 +779,9 @@ function bindHist(){
     sessions=sessions.filter(s=>s.id!==id); saveSessions(); render();
   }));
   const ec=document.getElementById("exportCsv"); if(ec) ec.addEventListener("click",exportCSV);
+  const bb=document.getElementById("backupBtn"); if(bb) bb.addEventListener("click",backupData);
+  const rb=document.getElementById("restoreBtn"); if(rb) rb.addEventListener("click",()=>document.getElementById("restoreFile").click());
+  const rf=document.getElementById("restoreFile"); if(rf) rf.addEventListener("change",restoreData);
   const cfg=getSync(), su=document.getElementById("syncUrl"), st=document.getElementById("syncToken");
   if(su) su.value=cfg.url||""; if(st) st.value=cfg.token||"";
   updateSyncStatus();
@@ -947,6 +953,45 @@ function renderAnalytics(){
 function bindAnalytics(){
   const sel=document.getElementById("anaExSel");
   if(sel) sel.addEventListener("change",()=>{anaEx=sel.value;render();});
+}
+
+//// バックアップ・復元 ////
+function backupData(){
+  const data={
+    sessions: sessions,
+    draft: draft,
+    sync: getSync(),
+    exported: new Date().toISOString(),
+    version: 1
+  };
+  try{
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json;charset=utf-8"});
+    const url=URL.createObjectURL(blob), a=document.createElement("a");
+    a.href=url; a.download="workout_backup_"+today().replace(/-/g,"")+".json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    toast(`バックアップ完了（${sessions.length}件）`);
+  }catch(e){toast("バックアップに失敗しました");}
+}
+function restoreData(e){
+  const file=e.target.files&&e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.sessions||!Array.isArray(data.sessions)) throw new Error("invalid");
+      const count=data.sessions.length;
+      if(!confirm(`${count}件の記録を復元します。現在のデータは上書きされます。よろしいですか？`)) return;
+      sessions=data.sessions;
+      if(data.draft&&data.draft.gym&&data.draft.home) draft=data.draft;
+      saveSessions(); queueDraftSave();
+      if(data.sync&&data.sync.url){ setSync(data.sync); }
+      toast(`${count}件の記録を復元しました`);
+      render();
+    }catch(err){ toast("ファイルが正しくありません"); }
+  };
+  reader.readAsText(file);
+  e.target.value="";
 }
 
 //// toast ////
