@@ -39,13 +39,29 @@
   #view{animation:fade .2s ease}
 
   /* log controls */
-  .controls{display:flex;gap:8px;align-items:center;margin:16px 0 0}
-  .controls input[type=date]{flex:1;background:var(--surface);border:1px solid var(--line);color:var(--text);
+  .controls{display:flex;flex-direction:column;gap:9px;margin:14px 0 0}
+  .date-in{width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text);
     font-family:var(--font-num);font-size:14px;padding:10px 12px;border-radius:12px;min-height:44px}
-  .seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
-  .seg button{padding:8px 15px;border:0;background:transparent;color:var(--dim);font-weight:700;font-size:13px;
+  .modes{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+  .modes button{flex:1;padding:9px 0;border:0;background:transparent;color:var(--dim);font-weight:700;font-size:13px;
     border-radius:9px;font-family:var(--font-ui);transition:.15s}
-  .seg button.on{background:var(--ember);color:#1a0b04;box-shadow:0 2px 8px rgba(255,107,48,.35)}
+  .modes button.on{background:var(--ember);color:#1a0b04;box-shadow:0 2px 8px rgba(255,107,48,.35)}
+  .mstrip{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);
+    border-radius:16px;padding:13px 15px;margin-top:16px;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+  .streak{flex:1;min-width:0}
+  .streak .flame{font-size:18px;margin-right:1px}
+  .streak .sv{font-family:var(--font-num);font-size:26px;font-weight:800;color:var(--text);vertical-align:-2px}
+  .streak .sl{font-size:13px;color:var(--dim);font-weight:700;margin-left:3px}
+  .streak .sl0{font-size:14px;color:var(--text);font-weight:700}
+  .streak .ssub{font-size:11px;color:var(--faint);margin-top:3px}
+  .rings{display:flex;gap:14px}
+  .ring{text-align:center}
+  .ring svg{width:46px;height:46px;display:block;margin:0 auto}
+  .ring .rbg{fill:none;stroke:var(--surface2);stroke-width:4}
+  .ring .rfg{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dasharray .5s}
+  .ring .rtx{font-family:var(--font-num);font-size:13px;font-weight:800;fill:var(--text);text-anchor:middle}
+  .ring .rl{font-size:10px;color:var(--faint);margin-top:2px;font-weight:600;white-space:nowrap}
+  .pr{color:var(--gold);font-weight:700;margin-left:6px;font-size:11px}
 
   /* progress */
   .prog{margin:15px 2px 4px}
@@ -102,6 +118,17 @@
   .stepper input:focus{outline:none}
   .field .u{color:var(--faint);font-size:12px;flex:none}
   .ins .x{color:var(--faint);font-size:15px;flex:none}
+  .set-rt{display:flex;align-items:center;gap:8px}
+  .rm{flex:none;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:var(--surface);
+    color:var(--faint);font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .rm:active{background:var(--surface2)}
+  .addset{width:100%;margin-top:10px;background:transparent;border:1px dashed var(--line);color:var(--ember);
+    font-size:13px;font-weight:700;padding:11px;border-radius:11px;font-family:var(--font-ui);cursor:pointer}
+  .addset:active{background:var(--ember-dim)}
+  .qfill{flex:none;background:var(--ember);color:#1a0b04;border:0;border-radius:10px;
+    padding:10px 14px;font-size:15px;font-weight:800;font-family:var(--font-num);
+    min-height:46px;white-space:nowrap;box-shadow:0 2px 8px rgba(255,107,48,.35);transition:transform .08s}
+  .qfill:active{transform:scale(.94)}
 
   .cues-toggle{margin-top:12px;background:none;border:0;color:var(--dim);font-size:12.5px;font-weight:600;
     padding:5px 0;display:flex;align-items:center;gap:6px;font-family:var(--font-ui)}
@@ -145,6 +172,18 @@
     z-index:40;background:var(--text);color:var(--bg);font-weight:700;font-size:14px;padding:11px 18px;border-radius:30px;
     opacity:0;transition:.25s;pointer-events:none;max-width:88%;box-shadow:0 8px 24px rgba(0,0,0,.4)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .celebrate{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
+    background:rgba(10,8,6,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+    opacity:0;pointer-events:none;transition:opacity .25s}
+  .celebrate.show{opacity:1;pointer-events:auto}
+  .cel-card{background:linear-gradient(var(--surface),var(--surface2));border:1px solid var(--line);border-radius:22px;
+    padding:26px 28px;text-align:center;max-width:82%;box-shadow:0 20px 50px rgba(0,0,0,.5);
+    transform:scale(.85);transition:transform .3s cubic-bezier(.2,1.4,.4,1)}
+  .celebrate.show .cel-card{transform:scale(1)}
+  .cel-big{font-size:24px;font-weight:800;color:var(--ember)}
+  .cel-sub{font-size:13px;color:var(--dim);margin-top:4px}
+  .cel-stats{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px}
+  .cel-stats span{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:12.5px;font-weight:700;color:var(--text);font-family:var(--font-num)}
 
   /* history */
   .hist-head{margin:16px 2px 12px;font-size:13px;color:var(--dim);font-weight:700}
@@ -240,6 +279,7 @@
   </button>
 </nav>
 <div class="toast" id="toast"></div>
+<div class="celebrate" id="celebrate"><div class="cel-card"></div></div>
 
 <script>
 //// 計画データ（workout_plan.md より） ////
@@ -252,7 +292,8 @@ const PLANS = {
       {id:"incline",name:"スミス・インクラインベンチプレス",sub:"胸上部・胸板の見た目",target:"32.5〜35kg / 8〜10回 ×3",sets:3,weight:true,unit:"回",levelUp:{reps:10,note:"3セット全部10回できたら次回少し重く"},cues:["ベンチ角度は15〜30度","角度を上げすぎると肩前側に逃げる","肩に違和感がある日は無理しない"]},
       {id:"lat_pulldown",name:"ラットプルダウン",sub:"姿勢改善・巻き肩対策",target:"35kg / 10回 ×3",sets:3,weight:true,unit:"回",levelUp:{reps:10,note:"35×10×3が安定したら37.5〜40kgへ"},cues:["腕で引くより肘を下に落とす","首をすくめない","胸を少し張る","鎖骨〜胸上部に引く"]},
       {id:"leg_press",name:"レッグプレス",sub:"健康維持・土台作り",target:"10〜12回 ×3（追い込みすぎない）",sets:3,weight:true,unit:"回",levelUp:null,cues:["あと2回できそうな所で止める","腰・臀部に違和感が出たら浅めに"]},
-      {id:"fly",name:"ペックフライ / ダンベルフライ",sub:"胸を内側に寄せる感覚",target:"12〜15回 ×3（重さよりフォーム）",sets:3,weight:true,unit:"回",levelUp:{reps:15,note:"3セットとも15回近くで次回少し重く"},cues:["優先：ペック→ケーブル→ダンベル","胸を内側に寄せる感覚を重視","肘は軽く曲げて固定・下ろしすぎない","肩を前に出さない（違和感ある日は軽め）"]},
+      {id:"fly",name:"ダンベルフライ",sub:"胸の内側・ストレッチ種目",target:"12〜15回 ×3（重さよりフォーム）",sets:3,weight:true,unit:"回",levelUp:{reps:15,note:"3セットとも15回近くで次回少し重く"},cues:["ベンチに仰向け・肩甲骨を寄せて胸を張る","肘は軽く曲げて角度を固定したまま動かす","下ろすのは胸の高さまで（下ろしすぎない）","胸を内側に寄せる感覚で閉じる","肩前側に違和感がある日は重量を下げる"]},
+      {id:"side_raise",name:"サイドレイズ",sub:"三角筋中部・肩幅を出す",target:"8kg / 12〜15回 ×3（トップで止められる重さ）",sets:3,weight:true,unit:"回",levelUp:{reps:15,note:"3セットとも15回近くで次回少し重く"},cues:["シーテッド推奨：座ると腰の反動を抑えて肩に集中できる","尾てい骨をベンチに押し込み腹圧をかけ、肩甲骨をロックする","「下から上げる」ではなく「上で止めた位置がスタート」の意識","下ろすとき脱力せず、空気抵抗に逆らうようにゆっくり耐える","肘を後ろに引かず、少し斜め前に上げると三角筋中部に乗る"]},
       {id:"triceps_pushdown",name:"ケーブル・トライセプスプレスダウン",sub:"腕の太さ・三頭筋",target:"10〜15回 ×3（最後は限界近く）",sets:3,weight:true,unit:"回",levelUp:{reps:15,note:"3セットとも15回近くで次回少し重く"},cues:["肘は体の横に固定","肩を動かさない","肘から先だけ伸ばす"]},
       {id:"ez_curl",name:"EZバー・カール",sub:"上腕二頭筋・力こぶ",target:"左右7.5kg前後 / 8〜12回 ×3（最後は限界近く）",sets:3,weight:true,unit:"回",levelUp:{reps:15,note:"3セットとも15回近くで次回少し重く"},cues:["反動を使いすぎない","下ろす動作をゆっくり","肘を前後に動かしすぎない"]},
       {id:"hammer_curl",name:"ハンマーカール",sub:"前腕・腕橈骨筋",target:"片手8kg / 10回 ×3（最後は限界近く）",sets:3,weight:true,unit:"回",levelUp:{reps:15,note:"3セットとも15回近くで次回少し重く"},cues:["親指が上を向くように持つ","肘を前後に振らない","前腕〜肘付近に効かせる"]},
@@ -273,8 +314,20 @@ const PLANS = {
   }
 };
 
-//// 種目ごとの初期重量（履歴がない初回に使う標準値） ////
-const WDEF={smith_bench:40, incline:35, lat_pulldown:35, fly:10, ez_curl:7.5, hammer_curl:8, oh_triceps:10};
+//// 種目ごとの初期重量 と ＋/−の刻み幅（マシンの実機に合わせる） ////
+const WDEF={smith_bench:40, incline:35, lat_pulldown:35, fly:10, side_raise:8, ez_curl:7.5, hammer_curl:8, oh_triceps:10, leg_press:51};
+// スミス系＝バーベルプレート（最小1.25kg×2=2.5kg）
+// ウェイトスタック系（ラットプル）＝ピン1段=5kg、レッグプレス＝16kg〜7kgきざみ
+// ケーブル系（プレスダウン）＝スタック5kgだが2.5kgアドオンプレートあり
+// ダンベル系（ハンマー・OH・フライ）＝軽重量帯は1kgきざみ
+// EZバー＝プレート式で2.5kgきざみ
+const WSTEP={smith_bench:2.5, incline:2.5, lat_pulldown:5,
+  fly:1, side_raise:1, triceps_pushdown:2.5, ez_curl:2.5, hammer_curl:1, oh_triceps:1, leg_press:7};
+
+//// 初回用の目標回数（前回記録がないときのクイック入力に使う） ////
+const RDEF={smith_bench:8,incline:8,lat_pulldown:10,leg_press:10,fly:12,side_raise:12,
+  triceps_pushdown:10,ez_curl:8,hammer_curl:10,oh_triceps:10,abs:10,
+  pushup:10,reverse_snow:10,dead_bug:10,narrow_pushup:8,plank:30};
 
 //// 動きのアニメ図（自作SVG・著作権フリー・オフライン可） ////
 const ANIM={
@@ -282,7 +335,8 @@ const ANIM={
   pushup:`<svg viewBox="0 0 140 90"><line class="gnd" x1="12" y1="76" x2="128" y2="76"/><g><circle class="hd" cx="34" cy="46" r="5"/><line class="fig" x1="39" y1="48" x2="104" y2="58"/><line class="fig" x1="104" y1="58" x2="112" y2="74"/><line class="act" x1="50" y1="50" x2="50" y2="76"/><animateTransform attributeName="transform" type="translate" values="0 0;0 12;0 0" dur="1.7s" repeatCount="indefinite"/></g></svg>`,
   pull:`<svg viewBox="0 0 140 90"><line class="gnd" x1="14" y1="82" x2="126" y2="82"/><circle class="hd" cx="70" cy="44" r="6"/><line class="fig" x1="70" y1="50" x2="70" y2="66"/><line class="fig" x1="70" y1="66" x2="58" y2="82"/><line class="fig" x1="70" y1="66" x2="82" y2="82"/><g class="act"><line x1="54" y1="30" x2="86" y2="30"/><line x1="60" y1="30" x2="66" y2="52"/><line x1="80" y1="30" x2="74" y2="52"/><animateTransform attributeName="transform" type="translate" values="0 -8;0 16;0 -8" dur="1.9s" repeatCount="indefinite"/></g></svg>`,
   legpress:`<svg viewBox="0 0 140 90"><line class="gnd" x1="12" y1="82" x2="128" y2="82"/><circle class="hd" cx="26" cy="42" r="5"/><line class="fig" x1="30" y1="46" x2="42" y2="62"/><g class="act"><line x1="42" y1="62" x2="72" y2="54"/><line x1="72" y1="54" x2="94" y2="60"/><line x1="94" y1="46" x2="106" y2="68"/><animateTransform attributeName="transform" type="translate" values="0 0;-18 0;0 0" dur="1.9s" repeatCount="indefinite"/></g></svg>`,
-  fly:`<svg viewBox="0 0 140 90"><circle class="hd" cx="70" cy="28" r="6"/><line class="fig" x1="70" y1="34" x2="70" y2="64"/><line class="fig" x1="70" y1="64" x2="60" y2="82"/><line class="fig" x1="70" y1="64" x2="80" y2="82"/><line class="act" x1="70" y1="42" x2="44" y2="42"><animate attributeName="x2" values="44;64;44" dur="1.8s" repeatCount="indefinite"/></line><line class="act" x1="70" y1="42" x2="96" y2="42"><animate attributeName="x2" values="96;76;96" dur="1.8s" repeatCount="indefinite"/></line></svg>`,
+  fly:`<svg viewBox="0 0 140 90"><line class="eq" x1="24" y1="62" x2="116" y2="62"/><line class="eq" x1="34" y1="62" x2="34" y2="80"/><line class="eq" x1="106" y1="62" x2="106" y2="80"/><line class="gnd" x1="12" y1="80" x2="128" y2="80"/><circle class="hd" cx="34" cy="55" r="5"/><line class="fig" x1="40" y1="56" x2="88" y2="56"/><line class="fig" x1="88" y1="56" x2="100" y2="68"/><line class="fig" x1="100" y1="68" x2="112" y2="62"/><line class="act" x1="55" y1="56" x2="46" y2="34"><animate attributeName="x2" values="46;56;46" dur="1.8s" repeatCount="indefinite"/><animate attributeName="y2" values="34;44;34" dur="1.8s" repeatCount="indefinite"/></line><line class="act" x1="68" y1="56" x2="78" y2="34"><animate attributeName="x2" values="78;68;78" dur="1.8s" repeatCount="indefinite"/><animate attributeName="y2" values="34;44;34" dur="1.8s" repeatCount="indefinite"/></line></svg>`,
+  sideraise:`<svg viewBox="0 0 140 90"><line class="gnd" x1="12" y1="82" x2="128" y2="82"/><line class="eq" x1="56" y1="64" x2="84" y2="64"/><line class="eq" x1="56" y1="64" x2="56" y2="82"/><line class="eq" x1="84" y1="64" x2="84" y2="82"/><circle class="hd" cx="70" cy="32" r="6"/><line class="fig" x1="70" y1="38" x2="70" y2="60"/><line class="fig" x1="70" y1="60" x2="62" y2="82"/><line class="fig" x1="70" y1="60" x2="78" y2="82"/><line class="act" x1="70" y1="44" x2="50" y2="56"><animateTransform attributeName="transform" type="rotate" values="0 70 44;-62 70 44;0 70 44" dur="1.9s" repeatCount="indefinite"/></line><line class="act" x1="70" y1="44" x2="90" y2="56"><animateTransform attributeName="transform" type="rotate" values="0 70 44;62 70 44;0 70 44" dur="1.9s" repeatCount="indefinite"/></line></svg>`,
   pushdown:`<svg viewBox="0 0 140 90"><circle class="hd" cx="70" cy="22" r="6"/><line class="fig" x1="70" y1="28" x2="70" y2="62"/><line class="fig" x1="70" y1="62" x2="60" y2="82"/><line class="fig" x1="70" y1="62" x2="80" y2="82"/><line class="fig" x1="70" y1="34" x2="74" y2="52"/><line class="act" x1="74" y1="52" x2="88" y2="44"><animateTransform attributeName="transform" type="rotate" values="-35 74 52;35 74 52;-35 74 52" dur="1.6s" repeatCount="indefinite"/></line></svg>`,
   curl:`<svg viewBox="0 0 140 90"><circle class="hd" cx="70" cy="22" r="6"/><line class="fig" x1="70" y1="28" x2="70" y2="62"/><line class="fig" x1="70" y1="62" x2="60" y2="82"/><line class="fig" x1="70" y1="62" x2="80" y2="82"/><line class="fig" x1="70" y1="34" x2="74" y2="52"/><line class="act" x1="74" y1="52" x2="82" y2="66"><animateTransform attributeName="transform" type="rotate" values="20 74 52;-80 74 52;20 74 52" dur="1.7s" repeatCount="indefinite"/></line></svg>`,
   extendup:`<svg viewBox="0 0 140 90"><circle class="hd" cx="70" cy="36" r="6"/><line class="fig" x1="70" y1="42" x2="70" y2="72"/><line class="fig" x1="70" y1="72" x2="60" y2="86"/><line class="fig" x1="70" y1="72" x2="80" y2="86"/><line class="fig" x1="70" y1="46" x2="72" y2="28"/><line class="act" x1="72" y1="28" x2="62" y2="42"><animateTransform attributeName="transform" type="rotate" values="0 72 28;-65 72 28;0 72 28" dur="1.7s" repeatCount="indefinite"/></line></svg>`,
@@ -298,7 +352,8 @@ const HOW={
   incline:{anim:"press",how:["ベンチを15〜30度に起こして仰向けになる","バーが鎖骨〜胸の上部に下りる位置に寝る","肩をすくめず胸を張り、ゆっくり胸上部へ下ろす","胸の上部で押す意識で上げる（角度を上げすぎると肩に逃げる）"]},
   lat_pulldown:{anim:"pull",how:["パッドに太ももを固定し、肩幅より少し広くバーを握る","胸を軽く張り、上体をわずかに後ろへ倒す","肘を下に落とすイメージでバーを鎖骨〜胸上部へ引く","首をすくめず、ゆっくり戻して背中を伸ばす"]},
   leg_press:{anim:"legpress",how:["シートに座り、足を肩幅でプレート中央に置く","安全レバーを外し、膝を曲げて重りを下ろす","膝が90度くらいまで来たら、かかとで押して伸ばす","膝を伸ばしきってロックせず、腰が浮かない範囲で行う"]},
-  fly:{anim:"fly",how:["肘を軽く曲げて固定したまま構える","腕を大きく開いて胸をストレッチさせる","胸を内側に寄せる意識で、腕を体の前で閉じる","下ろしすぎず、肩を前に出さないように戻す"]},
+  fly:{anim:"fly",how:["フラットベンチに仰向けになり、両手にダンベルを持つ","胸の真上でダンベルを構え、手のひらを向かい合わせにする","肩甲骨を寄せて胸を張り、軽いブリッジを作る","肘を軽く曲げた角度を保ったまま、弧を描くようにゆっくり開く","胸の高さくらいまで下ろしたら、胸を寄せる意識で元に戻す"]},
+  side_raise:{anim:"sideraise",how:["ベンチに座り、尾てい骨を押し込んで腹圧をかける（シーテッド推奨）","ダンベルを体の横に持ち、肩甲骨をロックする","肘を軽く曲げ、少し斜め前の軌道で肩の高さまで上げる","トップで一瞬止め、脱力せずゆっくり下ろす（空気抵抗に逆らうように）","反動を使わず、三角筋中部に負荷が乗り続ける速度でコントロールする"]},
   triceps_pushdown:{anim:"pushdown",how:["ケーブルの前に立ち、バーを肩幅で握る","肘を体の横に固定する（動かさない）","肘から先だけを使ってバーを下へ押し切る","二の腕の収縮を感じ、ゆっくり戻す"]},
   ez_curl:{anim:"curl",how:["EZバーを肩幅で握り、肘を体の横に置く","肘の位置を固定したままバーを巻き上げる","上腕二頭筋を縮め、ゆっくり下ろす","反動を使わず、下ろす動作も丁寧に"]},
   hammer_curl:{anim:"curl",how:["ダンベルを親指が上を向く縦持ちで握る","肘を体の横に固定する","手首を返さず、そのまま巻き上げる","前腕〜肘付近を意識し、ゆっくり下ろす"]},
@@ -312,13 +367,17 @@ const HOW={
 };
 
 //// 部位マッピング（分析の部位別バランス用） ////
-const MUSCLE={smith_bench:"胸",incline:"胸",fly:"胸",pushup:"胸",lat_pulldown:"背",reverse_snow:"背",leg_press:"脚",triceps_pushdown:"腕",ez_curl:"腕",hammer_curl:"腕",oh_triceps:"腕",narrow_pushup:"腕",abs:"体幹",dead_bug:"体幹",plank:"体幹"};
+const MUSCLE={smith_bench:"胸",incline:"胸",fly:"胸",pushup:"胸",lat_pulldown:"背",reverse_snow:"背",leg_press:"脚",side_raise:"肩",triceps_pushdown:"腕",ez_curl:"腕",hammer_curl:"腕",oh_triceps:"腕",narrow_pushup:"腕",abs:"体幹",dead_bug:"体幹",plank:"体幹"};
+
+//// コア種目（時短の日に残す種目）と月目標 ////
+const CORE_IDS=["smith_bench","incline","lat_pulldown","triceps_pushdown","ez_curl","hammer_curl"];
+const GOAL={gym:4,home:2};
 
 //// 状態 ////
 const S_SESS="wlog_sessions", S_DRAFT="wlog_draft", S_SYNC="wlog_sync";
 let sessions=[];
 let draft={gym:{date:today(),entries:{}},home:{date:today(),entries:{}}};
-let curTab="log", curType="gym", saveTimer=null, tT=null, anaEx=null;
+let curTab="log", curType="gym", gymMode="full", saveTimer=null, tT=null, anaEx=null;
 
 function today(){const d=new Date();const o=d.getTimezoneOffset();return new Date(d-o*60000).toISOString().slice(0,10);}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
@@ -338,6 +397,65 @@ function queueDraftSave(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{try{
 function lastFor(exId,type){for(const s of sessions){if(s.type!==type)continue;const e=s.entries.find(x=>x.exId===exId);if(e)return e.sets;}return null;}
 
 //// 描画 ////
+//// 継続・モチベーション ////
+function shownEx(){
+  if(curType==="home") return PLANS.home.ex;
+  return gymMode==="core" ? PLANS.gym.ex.filter(e=>CORE_IDS.includes(e.id)) : PLANS.gym.ex;
+}
+function weekIdx(dateStr){const d=new Date(dateStr+"T00:00:00");const s=new Date(d);s.setDate(d.getDate()-d.getDay());return Math.round(s.getTime()/(7*86400000));}
+function weekStreak(){
+  const idxs=new Set(sessions.map(s=>weekIdx(s.date)));
+  if(!idxs.size) return 0;
+  const cw=weekIdx(today());
+  let w=idxs.has(cw)?cw:cw-1, count=0, gap=false;
+  while(cw-w<=520){
+    if(idxs.has(w)){count++;gap=false;}
+    else{ if(gap) break; gap=true; }
+    w--;
+  }
+  return count;
+}
+function ringSVG(val,max,label,color){
+  const r=14,c=2*Math.PI*r,frac=Math.max(0,Math.min(1,val/max));
+  return `<div class="ring">
+    <svg viewBox="0 0 36 36"><circle class="rbg" cx="18" cy="18" r="${r}"/><circle class="rfg" cx="18" cy="18" r="${r}" style="stroke:${color}" stroke-dasharray="${(frac*c).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 18 18)"/><text x="18" y="22" class="rtx">${val}</text></svg>
+    <div class="rl">${label} ${val}/${max}</div>
+  </div>`;
+}
+function motivStrip(){
+  const s=weekStreak(), mp=today().slice(0,7);
+  const gym=sessions.filter(x=>x.type==="gym"&&x.date.slice(0,7)===mp).length;
+  const home=sessions.filter(x=>x.type==="home"&&x.date.slice(0,7)===mp).length;
+  const trainedThis=sessions.some(x=>weekIdx(x.date)===weekIdx(today()));
+  const head = s>=1 ? `<span class="flame">🔥</span><span class="sv">${s}</span><span class="sl">週連続</span>` : `<span class="sl0">今週から始めよう</span>`;
+  const sub = s>=1 ? (trainedThis?"今週はクリア済み":`今週やれば ${s+1}週連続に`) : (trainedThis?"今週クリア！":"まずは1回でOK");
+  return `<div class="mstrip">
+    <div class="streak">${head}<div class="ssub">${sub}</div></div>
+    <div class="rings">${ringSVG(gym,GOAL.gym,"ジム","var(--ember)")}${ringSVG(home,GOAL.home,"家トレ","var(--up)")}</div>
+  </div>`;
+}
+function countPRs(sess){
+  let k=0;
+  sess.entries.forEach(e=>{
+    if(!e.weight) return;
+    const ws=e.sets.map(st=>st.w).filter(w=>w!=null); if(!ws.length) return;
+    const cur=Math.max(...ws); let prev=-Infinity;
+    sessions.forEach(s=>{if(s.type!==sess.type)return;const pe=s.entries.find(x=>x.exId===e.exId);if(pe)pe.sets.forEach(st=>{if(st.w!=null&&st.w>prev)prev=st.w;});});
+    if(prev>-Infinity&&cur>prev) k++;
+  });
+  return k;
+}
+function showCelebration(st){
+  const el=document.getElementById("celebrate"); if(!el) return;
+  const lines=[`今月 ${st.monthCount}回目`];
+  if(st.streak>=1) lines.push(`🔥 ${st.streak}週連続`);
+  if(st.prs>0) lines.push(`自己ベスト更新 ×${st.prs}`);
+  lines.push(`通算 ${st.total}回`);
+  el.querySelector(".cel-card").innerHTML=`<div class="cel-big">おつかれさま！</div><div class="cel-sub">今日のトレを記録しました</div><div class="cel-stats">${lines.map(l=>`<span>${l}</span>`).join("")}</div>`;
+  el.classList.add("show");
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"),2800);
+}
+
 function render(){
   document.getElementById("savebar").style.display = curTab==="log" ? "block" : "none";
   document.querySelectorAll(".tb").forEach(b=>b.classList.toggle("on", b.dataset.tab===curTab));
@@ -357,20 +475,23 @@ function render(){
 }
 
 function renderLog(){
-  const p=PLANS[curType];
-  let h=`<div class="controls">
-    <input type="date" id="dateInput" value="${esc(draft[curType].date)}">
-    <div class="seg">
-      <button data-type="gym" class="${curType==="gym"?"on":""}">ジム</button>
-      <button data-type="home" class="${curType==="home"?"on":""}">家トレ</button>
+  const list=shownEx();
+  const note = curType==="home" ? PLANS.home.note : (gymMode==="core" ? "コア：残したい種目だけ。時短の日もこれで“完了”でOK。" : PLANS.gym.note);
+  let h=`${motivStrip()}
+  <div class="controls">
+    <input type="date" id="dateInput" class="date-in" value="${esc(draft[curType].date)}">
+    <div class="modes">
+      <button data-mode="full" class="${curType==="gym"&&gymMode==="full"?"on":""}">フル</button>
+      <button data-mode="core" class="${curType==="gym"&&gymMode==="core"?"on":""}">コア</button>
+      <button data-mode="home" class="${curType==="home"?"on":""}">家トレ</button>
     </div>
   </div>
   <div class="prog">
-    <div class="prog-row"><span class="t">今日の進捗</span><span class="n" id="progNum">0 / ${p.ex.length}</span></div>
+    <div class="prog-row"><span class="t">今日の記録</span><span class="n" id="progNum">0 / ${list.length} 種目</span></div>
     <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
   </div>
-  <div class="menu-note">${esc(p.note)}</div>`;
-  p.ex.forEach((ex,i)=>{
+  <div class="menu-note">${esc(note)}</div>`;
+  list.forEach((ex,i)=>{
     const last=lastFor(ex.id,curType);
     h+=`<div class="card" data-ex="${ex.id}">
       <div class="card-head">
@@ -401,17 +522,22 @@ function renderLog(){
 
 function setRows(ex,last){
   const d=draft[curType].entries[ex.id]||(draft[curType].entries[ex.id]=[]);
+  if(d.length===0) d.push({});
   if(ex.weight){
-    for(let i=0;i<ex.sets;i++){
-      d[i]=d[i]||{};
-      if(d[i].w===undefined){ const lt=last&&last[i]?last[i]:null; d[i].w = lt?lt.w:(WDEF[ex.id]!=null?WDEF[ex.id]:null); }
-    }
+    d.forEach((row,i)=>{
+      if(row.w===undefined){
+        const lt=last&&last[i]?last[i]:null, prev=i>0?d[i-1]:null;
+        row.w = lt?lt.w : (prev&&prev.w!=null?prev.w : (WDEF[ex.id]!=null?WDEF[ex.id]:null));
+      }
+    });
   }
   const lab=curType==="home"?"周":"セット";
+  const n=d.length;
   let h="";
-  for(let i=0;i<ex.sets;i++){
+  for(let i=0;i<n;i++){
     const cur=d[i]||{}, lt=last&&last[i]?last[i]:null;
     let ltTxt=""; if(lt) ltTxt = ex.weight ? `${fmt(lt.w)}×${fmt(lt.r)}` : `${fmt(lt.r)}${ex.unit}`;
+    const rm = n>1 ? `<button class="rm" data-i="${i}">×</button>` : "";
     const wField = ex.weight ? `<div class="field">
         <div class="stepper">
           <button data-f="w" data-i="${i}" data-dir="-1">−</button>
@@ -419,30 +545,38 @@ function setRows(ex,last){
           <button data-f="w" data-i="${i}" data-dir="1">＋</button>
         </div><span class="u">kg</span>
       </div><span class="x">×</span>` : "";
+    const qr = (lt&&lt.r!=null) ? lt.r : (RDEF[ex.id]!=null?RDEF[ex.id]:null);
+    const qfill = (cur.r==null && qr!=null) ? `<button class="qfill" data-i="${i}" data-v="${qr}">${qr}${ex.unit==="秒"?"秒":"回"}</button>` : "";
     h+=`<div class="set" data-i="${i}">
       <div class="set-top">
         <div class="set-label"><b>${i+1}</b>${lab}目</div>
-        <div class="set-last">${lt?`<span class="lt">前回 ${ltTxt}</span><span class="delta"></span>`:`<span class="lt">前回なし</span>`}</div>
+        <div class="set-rt"><div class="set-last">${lt?`<span class="lt">前回 ${ltTxt}</span><span class="delta"></span><span class="pr"></span>`:`<span class="lt">前回なし</span>`}</div>${rm}</div>
       </div>
       <div class="ins">
         ${wField}
         <div class="field">
           <div class="stepper">
             <button data-f="r" data-i="${i}" data-dir="-1">−</button>
-            <input inputmode="numeric" data-f="r" data-i="${i}" value="${cur.r??""}" placeholder="${lt?fmt(lt.r):"–"}">
+            <input inputmode="numeric" data-f="r" data-i="${i}" value="${cur.r??""}" placeholder="${qr||"–"}">
             <button data-f="r" data-i="${i}" data-dir="1">＋</button>
           </div><span class="u">${ex.unit==="秒"?"秒":"回"}</span>
         </div>
+        ${qfill}
       </div>
     </div>`;
   }
+  h+=`<button class="addset">＋ ${curType==="home"?"周":"セット"}を追加</button>`;
   return h;
 }
 
 function bindLog(){
   const di=document.getElementById("dateInput");
   if(di) di.addEventListener("change",e=>{draft[curType].date=e.target.value||today();queueDraftSave();});
-  document.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{curType=b.dataset.type;render();}));
+  document.querySelectorAll(".modes button").forEach(b=>b.addEventListener("click",()=>{
+    const m=b.dataset.mode;
+    if(m==="home") curType="home"; else { curType="gym"; gymMode=m; }
+    render();
+  }));
   document.querySelectorAll(".card-head").forEach(hd=>hd.addEventListener("click",()=>{
     const card=hd.closest(".card"), willOpen=!card.classList.contains("open");
     document.querySelectorAll(".card.open").forEach(c=>{if(c!==card)c.classList.remove("open");});
@@ -453,43 +587,67 @@ function bindLog(){
     const c=b.parentElement.querySelector(".cues");const open=c.classList.toggle("open");
     b.querySelector(".chev").style.transform=open?"rotate(90deg)":"";
   }));
-  // typing
-  document.querySelectorAll(".card input[data-f]").forEach(inp=>{
+  document.querySelectorAll(".card").forEach(c=>bindCardSets(c));
+}
+
+function rebuildSets(card,ex,last){
+  card.querySelector(".sets").innerHTML=setRows(ex,last);
+  bindCardSets(card);
+  refreshCard(card); updateProgress(); updateSaveBtn();
+}
+function bindCardSets(card){
+  const exId=card.dataset.ex, ex=PLANS[curType].ex.find(x=>x.id===exId);
+  const last=lastFor(exId,curType);
+  card.querySelectorAll("input[data-f]").forEach(inp=>{
     inp.addEventListener("input",()=>{
-      const card=inp.closest(".card"),exId=card.dataset.ex,i=+inp.dataset.i,f=inp.dataset.f;
+      const i=+inp.dataset.i,f=inp.dataset.f;
       const arr=draft[curType].entries[exId]||(draft[curType].entries[exId]=[]);
       arr[i]=arr[i]||{}; arr[i][f]=num(inp.value);
       refreshCard(card); updateProgress(); updateSaveBtn(); queueDraftSave();
     });
   });
-  // +/- steppers
-  document.querySelectorAll(".stepper button").forEach(btn=>{
+  card.querySelectorAll(".stepper button").forEach(btn=>{
     btn.addEventListener("click",()=>{
-      const card=btn.closest(".card"),exId=card.dataset.ex,ex=PLANS[curType].ex.find(x=>x.id===exId);
       const i=+btn.dataset.i,f=btn.dataset.f,dir=+btn.dataset.dir;
-      const last=lastFor(exId,curType),lt=last&&last[i]?last[i]:null;
+      const lt=last&&last[i]?last[i]:null;
       const arr=draft[curType].entries[exId]||(draft[curType].entries[exId]=[]);
       arr[i]=arr[i]||{};
-      const step = f==="w" ? 2.5 : (ex.unit==="秒"?5:1);
+      const step = f==="w" ? (WSTEP[exId]||2.5) : (ex.unit==="秒"?5:1);
       const cur=arr[i][f], lastV=lt!=null?(f==="w"?lt.w:lt.r):null;
       let nv;
       if(cur==null) nv = (lastV!=null) ? lastV : Math.max(0, dir>0?step:0);
       else nv = Math.max(0, cur + dir*step);
-      nv=Math.round(nv*100)/100;
-      arr[i][f]=nv;
-      const inp=card.querySelector(`input[data-f="${f}"][data-i="${i}"]`);
-      if(inp) inp.value=nv;
+      nv=Math.round(nv*100)/100; arr[i][f]=nv;
+      const inp=card.querySelector(`input[data-f="${f}"][data-i="${i}"]`); if(inp) inp.value=nv;
       refreshCard(card); updateProgress(); updateSaveBtn(); queueDraftSave();
     });
   });
+  const add=card.querySelector(".addset");
+  if(add) add.addEventListener("click",()=>{
+    const arr=draft[curType].entries[exId]||(draft[curType].entries[exId]=[]);
+    arr.push({});
+    rebuildSets(card,ex,last); queueDraftSave();
+  });
+  card.querySelectorAll(".rm").forEach(b=>b.addEventListener("click",()=>{
+    const i=+b.dataset.i, arr=draft[curType].entries[exId]||[];
+    if(arr.length>1){ arr.splice(i,1); rebuildSets(card,ex,last); queueDraftSave(); }
+  }));
+  card.querySelectorAll(".qfill").forEach(b=>b.addEventListener("click",()=>{
+    const i=+b.dataset.i, v=+b.dataset.v;
+    const arr=draft[curType].entries[exId]||(draft[curType].entries[exId]=[]);
+    arr[i]=arr[i]||{}; arr[i].r=v;
+    rebuildSets(card,ex,last); queueDraftSave();
+  }));
 }
 
-function exDone(ex,arr){for(let i=0;i<ex.sets;i++){if(!(arr[i]&&arr[i].r!=null))return false;}return true;}
+function exDone(ex,arr){if(!arr||!arr.length)return false;for(let i=0;i<arr.length;i++){if(!(arr[i]&&arr[i].r!=null))return false;}return true;}
 
 function refreshCard(card){
   const exId=card.dataset.ex, ex=PLANS[curType].ex.find(x=>x.id===exId);
   const last=lastFor(exId,curType), arr=draft[curType].entries[exId]||[];
-  // per-set delta
+  let prevBest=-Infinity;
+  sessions.forEach(s=>{if(s.type!==curType)return;const e=s.entries.find(x=>x.exId===exId);if(e)e.sets.forEach(st=>{if(st.w!=null&&st.w>prevBest)prevBest=st.w;});});
+  // per-set delta + 自己ベスト
   card.querySelectorAll(".set").forEach(setEl=>{
     const i=+setEl.dataset.i, delta=setEl.querySelector(".delta"); if(!delta)return;
     const cur=arr[i]||{}, lt=last&&last[i]?last[i]:null, curR=cur.r, ltR=lt?lt.r:null;
@@ -501,6 +659,8 @@ function refreshCard(card){
       else if(wDown||curR<ltR){delta.classList.add("down");delta.textContent="↓";}
       else{delta.classList.add("same");delta.textContent="→";}
     }
+    const pr=setEl.querySelector(".pr");
+    if(pr){ pr.textContent = (ex.weight&&cur.w!=null&&curR!=null&&prevBest>-Infinity&&cur.w>prevBest) ? "★最高" : ""; }
   });
   // completion
   const done=exDone(ex,arr);
@@ -511,23 +671,23 @@ function refreshCard(card){
   if(sum){
     const vals=[];
     for(let i=0;i<ex.sets;i++){const s=arr[i]; if(s&&s.r!=null) vals.push(ex.weight?`${fmt(s.w)}×${fmt(s.r)}`:`${fmt(s.r)}${ex.unit}`);}
-    sum.textContent = vals.length ? vals.join(" / ") : "未入力";
+    sum.textContent = vals.length ? vals.join(" / ") : "—";
   }
   // level-up badge
   const badge=card.querySelector(".badge"), txt=card.querySelector(".badge-txt");
   if(ex.levelUp){
-    const reps=[]; for(let i=0;i<ex.sets;i++){reps.push((arr[i]&&arr[i].r!=null)?arr[i].r:null);}
-    const hit=reps.every(r=>r!=null)&&reps.every(r=>r>=ex.levelUp.reps);
+    const reps=arr.filter(s=>s&&s.r!=null).map(s=>s.r);
+    const hit = reps.filter(r=>r>=ex.levelUp.reps).length >= ex.sets;
     if(hit){badge.classList.add("show");txt.textContent=ex.levelUp.note;} else badge.classList.remove("show");
   }
 }
 
 function updateProgress(){
-  const p=PLANS[curType], ents=draft[curType].entries;
-  let done=0; p.ex.forEach(ex=>{ if(exDone(ex,ents[ex.id]||[])) done++; });
+  const list=shownEx(), ents=draft[curType].entries;
+  let done=0; list.forEach(ex=>{ if(exDone(ex,ents[ex.id]||[])) done++; });
   const fill=document.getElementById("progFill"), n=document.getElementById("progNum");
-  if(fill) fill.style.width=(done/p.ex.length*100)+"%";
-  if(n) n.textContent=`${done} / ${p.ex.length}`;
+  if(fill) fill.style.width=(done/list.length*100)+"%";
+  if(n) n.textContent=`${done} / ${list.length} 種目`;
 }
 
 function entriesFilled(type){const e=type?draft[type].entries:draft[curType].entries;let n=0;for(const id in e){if((e[id]||[]).some(s=>s&&s.r!=null))n++;}return n;}
@@ -536,7 +696,7 @@ function updateSaveBtn(){
   const n=entriesFilled(curType);
   const bar=document.getElementById("savebar");
   bar.style.display = (curTab==="log"&&n>0) ? "block" : "none";
-  btn.textContent = `この日の記録を保存（${n}種目）`;
+  btn.textContent = `今日のトレを記録して完了（${n}種目）`;
 }
 
 //// 保存 ////
@@ -549,12 +709,14 @@ async function saveSession(){
   });
   if(!entries.length){toast("入力がありません");return;}
   const sess={id:Date.now(),date:draft[type].date||today(),type,entries};
+  const prs=countPRs(sess);
   sessions.unshift(sess);
   sessions.sort((a,b)=>(b.date.localeCompare(a.date))||(b.id-a.id));
   saveSessions();
   draft[type]={date:today(),entries:{}};
   queueDraftSave();
-  toast("保存しました");
+  const mp=today().slice(0,7), monthCount=sessions.filter(x=>x.date.slice(0,7)===mp).length;
+  showCelebration({monthCount, streak:weekStreak(), prs, total:sessions.length});
   if(getSync().url) pushSync(true);
   render();
 }
@@ -774,7 +936,7 @@ function renderAnalytics(){
     <div class="ana-sub" style="text-align:center;margin:10px 0 0">直近90日：${inWin}回</div>
   </div>`;
   // 部位別バランス
-  const groups=["胸","腕","背","脚","体幹"], tally={}; groups.forEach(g=>tally[g]=0);
+  const groups=["胸","腕","肩","背","脚","体幹"], tally={}; groups.forEach(g=>tally[g]=0);
   sessions.forEach(s=>s.entries.forEach(e=>{const g=MUSCLE[e.exId]; if(g)tally[g]+=e.sets.length;}));
   const tmx=Math.max(1,...groups.map(g=>tally[g]));
   h+=`<div class="ana-card"><h3>部位別バランス</h3><div class="ana-sub">全期間の合計セット数</div><div class="bars">
@@ -793,11 +955,12 @@ function toast(m){const t=document.getElementById("toast");t.textContent=m;t.cla
 //// 起動 ////
 document.querySelectorAll(".tb").forEach(b=>b.addEventListener("click",()=>{curTab=b.dataset.tab;render();}));
 document.getElementById("saveBtn").addEventListener("click",saveSession);
+document.getElementById("celebrate").addEventListener("click",function(){this.classList.remove("show");});
 
 (function init(){
   loadAll();
-  if(!draft.gym.date)draft.gym.date=today();
-  if(!draft.home.date)draft.home.date=today();
+  // 入力途中（回数あり）でなければ、開いたときの日付を今日にする
+  ["gym","home"].forEach(t=>{ if(!draft[t].date || entriesFilled(t)===0) draft[t].date=today(); });
   render();
 })();
 </script>
