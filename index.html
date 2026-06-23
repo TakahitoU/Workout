@@ -125,10 +125,10 @@
   .addset{width:100%;margin-top:10px;background:transparent;border:1px dashed var(--line);color:var(--ember);
     font-size:13px;font-weight:700;padding:11px;border-radius:11px;font-family:var(--font-ui);cursor:pointer}
   .addset:active{background:var(--ember-dim)}
-  .qfill{flex:none;background:var(--ember);color:#1a0b04;border:0;border-radius:10px;
-    padding:10px 14px;font-size:15px;font-weight:800;font-family:var(--font-num);
-    min-height:46px;white-space:nowrap;box-shadow:0 2px 8px rgba(255,107,48,.35);transition:transform .08s}
-  .qfill:active{transform:scale(.94)}
+  .qfill{display:inline-flex;align-items:center;gap:4px;margin-top:8px;background:var(--surface2);border:1px solid var(--line);color:var(--dim);border-radius:20px;
+    padding:6px 13px;font-size:12px;font-weight:600;font-family:var(--font-num);transition:.15s}
+  .qfill .qv{color:var(--text);font-weight:800;font-size:13px}
+  .qfill:active{background:var(--line);color:var(--text)}
 
   .cues-toggle{margin-top:12px;background:none;border:0;color:var(--dim);font-size:12.5px;font-weight:600;
     padding:5px 0;display:flex;align-items:center;gap:6px;font-family:var(--font-ui)}
@@ -172,6 +172,14 @@
     z-index:40;background:var(--text);color:var(--bg);font-weight:700;font-size:14px;padding:11px 18px;border-radius:30px;
     opacity:0;transition:.25s;pointer-events:none;max-width:88%;box-shadow:0 8px 24px rgba(0,0,0,.4)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .undo-toast{position:fixed;left:50%;bottom:calc(var(--tabbar-h) + 30px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);
+    z-index:42;display:flex;align-items:center;gap:12px;
+    background:var(--surface);border:1px solid var(--line);color:var(--text);font-size:14px;font-weight:600;
+    padding:10px 12px 10px 18px;border-radius:30px;opacity:0;transition:.25s;pointer-events:none;
+    box-shadow:0 8px 24px rgba(0,0,0,.5);max-width:88%}
+  .undo-toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+  .undo-toast button{background:var(--ember);color:#1a0b04;border:0;border-radius:20px;padding:7px 14px;
+    font-size:13px;font-weight:800;font-family:var(--font-ui);white-space:nowrap}
   .celebrate{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;
     background:rgba(10,8,6,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
     opacity:0;pointer-events:none;transition:opacity .25s}
@@ -279,6 +287,7 @@
   </button>
 </nav>
 <div class="toast" id="toast"></div>
+<div class="undo-toast" id="undoToast"><span>保存しました</span><button id="undoBtn">元に戻す</button></div>
 <div class="celebrate" id="celebrate"><div class="cel-card"></div></div>
 
 <script>
@@ -377,7 +386,7 @@ const GOAL={gym:4,home:2};
 const S_SESS="wlog_sessions", S_DRAFT="wlog_draft", S_SYNC="wlog_sync";
 let sessions=[];
 let draft={gym:{date:today(),entries:{}},home:{date:today(),entries:{}}};
-let curTab="log", curType="gym", gymMode="full", saveTimer=null, tT=null, anaEx=null;
+let curTab="log", curType="gym", gymMode="full", saveTimer=null, tT=null, anaEx=null, undoState=null;
 
 function today(){const d=new Date();const o=d.getTimezoneOffset();return new Date(d-o*60000).toISOString().slice(0,10);}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
@@ -546,7 +555,7 @@ function setRows(ex,last){
         </div><span class="u">kg</span>
       </div><span class="x">×</span>` : "";
     const qr = (lt&&lt.r!=null) ? lt.r : (RDEF[ex.id]!=null?RDEF[ex.id]:null);
-    const qfill = (cur.r==null && qr!=null) ? `<button class="qfill" data-i="${i}" data-v="${qr}">${qr}${ex.unit==="秒"?"秒":"回"}</button>` : "";
+    const qfill = (cur.r==null && qr!=null) ? `<button class="qfill" data-i="${i}" data-v="${qr}">前回 <span class="qv">${qr}${ex.unit==="秒"?"秒":"回"}</span></button>` : "";
     h+=`<div class="set" data-i="${i}">
       <div class="set-top">
         <div class="set-label"><b>${i+1}</b>${lab}目</div>
@@ -561,9 +570,8 @@ function setRows(ex,last){
             <button data-f="r" data-i="${i}" data-dir="1">＋</button>
           </div><span class="u">${ex.unit==="秒"?"秒":"回"}</span>
         </div>
-        ${qfill}
-      </div>
-    </div>`;
+    </div>${qfill}
+  </div>`;
   }
   h+=`<button class="addset">＋ ${curType==="home"?"周":"セット"}を追加</button>`;
   return h;
@@ -710,13 +718,16 @@ async function saveSession(){
   if(!entries.length){toast("入力がありません");return;}
   const sess={id:Date.now(),date:draft[type].date||today(),type,entries};
   const prs=countPRs(sess);
+  const prevDraft=JSON.parse(JSON.stringify(draft[type]));
   sessions.unshift(sess);
   sessions.sort((a,b)=>(b.date.localeCompare(a.date))||(b.id-a.id));
   saveSessions();
   draft[type]={date:today(),entries:{}};
   queueDraftSave();
+  undoState={sessId:sess.id, type, prevDraft};
   const mp=today().slice(0,7), monthCount=sessions.filter(x=>x.date.slice(0,7)===mp).length;
   showCelebration({monthCount, streak:weekStreak(), prs, total:sessions.length});
+  showUndo();
   if(getSync().url) pushSync(true);
   render();
 }
@@ -994,6 +1005,29 @@ function restoreData(e){
   e.target.value="";
 }
 
+//// 元に戻す ////
+let undoTimer=null;
+function showUndo(){
+  const el=document.getElementById("undoToast");
+  el.classList.add("show");
+  clearTimeout(undoTimer);
+  undoTimer=setTimeout(()=>{el.classList.remove("show");undoState=null;},6000);
+}
+function performUndo(){
+  if(!undoState) return;
+  const {sessId,type,prevDraft}=undoState;
+  sessions=sessions.filter(s=>s.id!==sessId);
+  saveSessions();
+  draft[type]=prevDraft;
+  queueDraftSave();
+  undoState=null;
+  document.getElementById("undoToast").classList.remove("show");
+  clearTimeout(undoTimer);
+  toast("元に戻しました");
+  if(getSync().url) pushSync(true);
+  render();
+}
+
 //// toast ////
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(tT);tT=setTimeout(()=>t.classList.remove("show"),1800);}
 
@@ -1001,6 +1035,7 @@ function toast(m){const t=document.getElementById("toast");t.textContent=m;t.cla
 document.querySelectorAll(".tb").forEach(b=>b.addEventListener("click",()=>{curTab=b.dataset.tab;render();}));
 document.getElementById("saveBtn").addEventListener("click",saveSession);
 document.getElementById("celebrate").addEventListener("click",function(){this.classList.remove("show");});
+document.getElementById("undoBtn").addEventListener("click",performUndo);
 
 (function init(){
   loadAll();
