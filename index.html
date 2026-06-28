@@ -224,11 +224,22 @@
   .sync-status{color:var(--faint);font-size:11.5px;font-family:var(--font-num);margin-top:12px;text-align:center}
   .sync-test{display:block;margin:11px auto 0;background:none;border:0;color:var(--ember);font-size:12.5px;font-weight:600;text-decoration:underline;font-family:var(--font-ui)}
 
-  .footer{margin-top:22px;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
   .exp{background:var(--surface);border:1px solid var(--line);color:var(--text);font-size:13px;font-weight:700;
     padding:12px 18px;border-radius:12px;font-family:var(--font-ui);transition:transform .08s}
   .exp:active{transform:translateY(1px)}
-  .reset{background:none;border:0;color:var(--faint);font-size:12px;text-decoration:underline;font-family:var(--font-ui)}
+
+  /* 設定タブ セクションカード */
+  .set-section{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:17px;margin-top:16px;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+  .set-section-h{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;margin-bottom:5px}
+  .set-section-h .icon{font-size:17px;line-height:1}
+  .set-section-desc{color:var(--faint);font-size:12px;margin-bottom:14px;line-height:1.6}
+  .set-btn-row{display:flex;gap:8px;margin-bottom:10px}
+  .set-btn-row .exp{flex:1}
+  .set-full{width:100%}
+  .set-danger{border-color:rgba(208,138,102,.35);background:linear-gradient(var(--surface),rgba(208,138,102,.05))}
+  .set-danger-btn{width:100%;padding:13px;border-radius:12px;border:1px solid rgba(208,138,102,.45);
+    background:transparent;color:var(--down);font-size:13px;font-weight:700;font-family:var(--font-ui);transition:.1s}
+  .set-danger-btn:active{background:rgba(208,138,102,.1)}
   .loading{text-align:center;color:var(--faint);padding:56px;font-size:14px}
   .ana-kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
   .kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 14px}
@@ -937,26 +948,37 @@ function bindAnalytics(){
 //// 設定 ////
 function renderSettings(){
   return `<div class="hist-head">設定</div>
-  <div class="sync">
-    <div class="sync-h">Googleスプレッドシートへ自動同期</div>
-    <div class="sync-desc">記録を保存するたびにシートが自動更新されます。設定方法はチャットの手順を参照。</div>
+
+  <div class="set-section">
+    <div class="set-section-h"><span class="icon">🔗</span>データ同期</div>
+    <div class="set-section-desc">Googleスプレッドシートへ自動同期。記録を保存するたびにシートが更新されます。</div>
     <label class="sync-l">Web App の URL</label>
     <input class="sync-i" id="syncUrl" inputmode="url" placeholder="https://script.google.com/macros/s/.../exec">
     <label class="sync-l">合言葉（任意・スクリプトと同じ文字列）</label>
     <input class="sync-i" id="syncToken" placeholder="例：myworkout2026">
-    <div class="sync-row">
+    <div class="sync-row" style="margin-top:14px">
       <button class="exp" id="syncSave">設定を保存</button>
       <button class="exp" id="syncNow">今すぐ同期</button>
     </div>
     <div class="sync-status" id="syncStatus"></div>
     <button class="sync-test" id="syncTest">接続テスト（シートに1行送る）</button>
   </div>
-  <div class="footer">
-    <button class="exp" id="backupBtn">💾 データをバックアップ</button>
-    <button class="exp" id="restoreBtn">📂 バックアップから復元</button>
+
+  <div class="set-section">
+    <div class="set-section-h"><span class="icon">📦</span>データ管理</div>
+    <div class="set-section-desc">バックアップはJSONファイルで保存されます。機種変更時の移行にも使えます。</div>
+    <div class="set-btn-row">
+      <button class="exp" id="backupBtn">💾 バックアップ</button>
+      <button class="exp" id="restoreBtn">📂 復元</button>
+    </div>
     <input type="file" id="restoreFile" accept=".json" style="display:none">
-    <button class="exp" id="exportCsv">スプレッドシート用に書き出す（CSV）</button>
-    <button class="reset" id="resetAll">すべてのデータを削除</button>
+    <button class="exp set-full" id="exportCsv">スプレッドシート用に書き出す（CSV）</button>
+  </div>
+
+  <div class="set-section set-danger">
+    <div class="set-section-h"><span class="icon">⚠️</span>データの削除</div>
+    <div class="set-section-desc">この操作はすべての記録と入力中のデータを消去します。元に戻せません。</div>
+    <button class="set-danger-btn" id="resetAll">すべてのデータを削除</button>
   </div>`;
 }
 function bindSettings(){
