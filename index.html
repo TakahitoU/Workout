@@ -338,6 +338,9 @@ const RDEF={smith_bench:8,incline:8,lat_pulldown:10,leg_press:10,fly:12,side_rai
   triceps_pushdown:10,ez_curl:8,hammer_curl:10,oh_triceps:10,abs:10,
   pushup:10,reverse_snow:10,dead_bug:10,narrow_pushup:8,plank:30};
 
+//// 片手ずつダンベルを持つ種目（重量は片手ぶん） ////
+const PERHAND=new Set(["fly","side_raise","hammer_curl"]);
+
 //// 動きのアニメ図（自作SVG・著作権フリー・オフライン可） ////
 const ANIM={
   press:`<svg viewBox="0 0 140 90"><line class="gnd" x1="12" y1="80" x2="128" y2="80"/><line class="eq" x1="30" y1="62" x2="106" y2="62"/><line class="eq" x1="40" y1="62" x2="40" y2="80"/><line class="eq" x1="96" y1="62" x2="96" y2="80"/><circle class="hd" cx="34" cy="56" r="5"/><line class="fig" x1="40" y1="58" x2="78" y2="58"/><line class="fig" x1="78" y1="58" x2="92" y2="70"/><line class="fig" x1="92" y1="70" x2="104" y2="62"/><g class="act"><line x1="58" y1="58" x2="58" y2="40"/><line x1="70" y1="58" x2="70" y2="40"/><line x1="48" y1="40" x2="80" y2="40"/><animateTransform attributeName="transform" type="translate" values="0 0;0 14;0 0" dur="1.8s" repeatCount="indefinite"/></g></svg>`,
@@ -552,7 +555,7 @@ function setRows(ex,last){
           <button data-f="w" data-i="${i}" data-dir="-1">−</button>
           <input inputmode="decimal" data-f="w" data-i="${i}" value="${cur.w??""}" placeholder="${lt?fmt(lt.w):"–"}">
           <button data-f="w" data-i="${i}" data-dir="1">＋</button>
-        </div><span class="u">kg</span>
+        </div><span class="u">${PERHAND.has(ex.id)?"kg/手":"kg"}</span>
       </div><span class="x">×</span>` : "";
     const qr = (lt&&lt.r!=null) ? lt.r : (RDEF[ex.id]!=null?RDEF[ex.id]:null);
     const qfill = (cur.r==null && qr!=null) ? `<button class="qfill" data-i="${i}" data-v="${qr}">前回 <span class="qv">${qr}${ex.unit==="秒"?"秒":"回"}</span></button>` : "";
