@@ -285,6 +285,10 @@
     <svg viewBox="0 0 24 24"><path d="M3 21h18M6 21v-6M12 21V9M18 21v-9"/></svg>
     <span>分析</span>
   </button>
+  <button class="tb" id="tabSet" data-tab="set">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span>設定</span>
+  </button>
 </nav>
 <div class="toast" id="toast"></div>
 <div class="undo-toast" id="undoToast"><span>保存しました</span><button id="undoBtn">元に戻す</button></div>
@@ -473,7 +477,7 @@ function render(){
   document.querySelectorAll(".tb").forEach(b=>b.classList.toggle("on", b.dataset.tab===curTab));
   const v=document.getElementById("view");
   v.style.animation="none"; void v.offsetWidth; v.style.animation="";
-  v.innerHTML = curTab==="log" ? renderLog() : curTab==="hist" ? renderHist() : renderAnalytics();
+  v.innerHTML = curTab==="log" ? renderLog() : curTab==="hist" ? renderHist() : curTab==="ana" ? renderAnalytics() : renderSettings();
   if(curTab==="log"){
     bindLog();
     document.querySelectorAll(".card").forEach(c=>refreshCard(c));
@@ -483,7 +487,8 @@ function render(){
     updateProgress(); updateSaveBtn();
   }
   else if(curTab==="hist") bindHist();
-  else bindAnalytics();
+  else if(curTab==="ana") bindAnalytics();
+  else bindSettings();
 }
 
 function renderLog(){
@@ -759,27 +764,6 @@ function renderHist(){
       </div>`;
     });
   }
-  h+=`<div class="sync">
-    <div class="sync-h">Googleスプレッドシートへ自動同期</div>
-    <div class="sync-desc">記録を保存するたびにシートが自動更新されます。設定方法はチャットの手順を参照。</div>
-    <label class="sync-l">Web App の URL</label>
-    <input class="sync-i" id="syncUrl" inputmode="url" placeholder="https://script.google.com/macros/s/.../exec">
-    <label class="sync-l">合言葉（任意・スクリプトと同じ文字列）</label>
-    <input class="sync-i" id="syncToken" placeholder="例：myworkout2026">
-    <div class="sync-row">
-      <button class="exp" id="syncSave">設定を保存</button>
-      <button class="exp" id="syncNow">今すぐ同期</button>
-    </div>
-    <div class="sync-status" id="syncStatus"></div>
-    <button class="sync-test" id="syncTest">接続テスト（シートに1行送る）</button>
-  </div>
-  <div class="footer">
-    <button class="exp" id="backupBtn">💾 データをバックアップ</button>
-    <button class="exp" id="restoreBtn">📂 バックアップから復元</button>
-    <input type="file" id="restoreFile" accept=".json" style="display:none">
-    <button class="exp" id="exportCsv">スプレッドシート用に書き出す（CSV）</button>
-    <button class="reset" id="resetAll">すべてのデータを削除</button>
-  </div>`;
   return h;
 }
 function bindHist(){
@@ -792,25 +776,6 @@ function bindHist(){
     if(!confirm("この記録を削除しますか？"))return;
     sessions=sessions.filter(s=>s.id!==id); saveSessions(); render();
   }));
-  const ec=document.getElementById("exportCsv"); if(ec) ec.addEventListener("click",exportCSV);
-  const bb=document.getElementById("backupBtn"); if(bb) bb.addEventListener("click",backupData);
-  const rb=document.getElementById("restoreBtn"); if(rb) rb.addEventListener("click",()=>document.getElementById("restoreFile").click());
-  const rf=document.getElementById("restoreFile"); if(rf) rf.addEventListener("change",restoreData);
-  const cfg=getSync(), su=document.getElementById("syncUrl"), st=document.getElementById("syncToken");
-  if(su) su.value=cfg.url||""; if(st) st.value=cfg.token||"";
-  updateSyncStatus();
-  const ss=document.getElementById("syncSave");
-  if(ss) ss.addEventListener("click",()=>{const c=getSync();c.url=(su.value||"").trim();c.token=(st.value||"").trim();setSync(c);updateSyncStatus();toast("設定を保存しました");});
-  const sn=document.getElementById("syncNow");
-  if(sn) sn.addEventListener("click",()=>{const c=getSync();c.url=(su.value||"").trim();c.token=(st.value||"").trim();setSync(c);pushSync(false);});
-  const stb=document.getElementById("syncTest"); if(stb) stb.addEventListener("click",testSync);
-  const ra=document.getElementById("resetAll");
-  if(ra) ra.addEventListener("click",()=>{
-    if(!confirm("すべての記録と入力中のデータを削除します。元に戻せません。"))return;
-    sessions=[]; draft={gym:{date:today(),entries:{}},home:{date:today(),entries:{}}};
-    try{localStorage.removeItem(S_SESS);localStorage.removeItem(S_DRAFT);}catch(e){}
-    render();
-  });
 }
 
 //// 行データ（CSV・同期 共通） ////
@@ -967,6 +932,53 @@ function renderAnalytics(){
 function bindAnalytics(){
   const sel=document.getElementById("anaExSel");
   if(sel) sel.addEventListener("change",()=>{anaEx=sel.value;render();});
+}
+
+//// 設定 ////
+function renderSettings(){
+  return `<div class="hist-head">設定</div>
+  <div class="sync">
+    <div class="sync-h">Googleスプレッドシートへ自動同期</div>
+    <div class="sync-desc">記録を保存するたびにシートが自動更新されます。設定方法はチャットの手順を参照。</div>
+    <label class="sync-l">Web App の URL</label>
+    <input class="sync-i" id="syncUrl" inputmode="url" placeholder="https://script.google.com/macros/s/.../exec">
+    <label class="sync-l">合言葉（任意・スクリプトと同じ文字列）</label>
+    <input class="sync-i" id="syncToken" placeholder="例：myworkout2026">
+    <div class="sync-row">
+      <button class="exp" id="syncSave">設定を保存</button>
+      <button class="exp" id="syncNow">今すぐ同期</button>
+    </div>
+    <div class="sync-status" id="syncStatus"></div>
+    <button class="sync-test" id="syncTest">接続テスト（シートに1行送る）</button>
+  </div>
+  <div class="footer">
+    <button class="exp" id="backupBtn">💾 データをバックアップ</button>
+    <button class="exp" id="restoreBtn">📂 バックアップから復元</button>
+    <input type="file" id="restoreFile" accept=".json" style="display:none">
+    <button class="exp" id="exportCsv">スプレッドシート用に書き出す（CSV）</button>
+    <button class="reset" id="resetAll">すべてのデータを削除</button>
+  </div>`;
+}
+function bindSettings(){
+  const ec=document.getElementById("exportCsv"); if(ec) ec.addEventListener("click",exportCSV);
+  const bb=document.getElementById("backupBtn"); if(bb) bb.addEventListener("click",backupData);
+  const rb=document.getElementById("restoreBtn"); if(rb) rb.addEventListener("click",()=>document.getElementById("restoreFile").click());
+  const rf=document.getElementById("restoreFile"); if(rf) rf.addEventListener("change",restoreData);
+  const cfg=getSync(), su=document.getElementById("syncUrl"), st=document.getElementById("syncToken");
+  if(su) su.value=cfg.url||""; if(st) st.value=cfg.token||"";
+  updateSyncStatus();
+  const ss=document.getElementById("syncSave");
+  if(ss) ss.addEventListener("click",()=>{const c=getSync();c.url=(su.value||"").trim();c.token=(st.value||"").trim();setSync(c);updateSyncStatus();toast("設定を保存しました");});
+  const sn=document.getElementById("syncNow");
+  if(sn) sn.addEventListener("click",()=>{const c=getSync();c.url=(su.value||"").trim();c.token=(st.value||"").trim();setSync(c);pushSync(false);});
+  const stb=document.getElementById("syncTest"); if(stb) stb.addEventListener("click",testSync);
+  const ra=document.getElementById("resetAll");
+  if(ra) ra.addEventListener("click",()=>{
+    if(!confirm("すべての記録と入力中のデータを削除します。元に戻せません。"))return;
+    sessions=[]; draft={gym:{date:today(),entries:{}},home:{date:today(),entries:{}}};
+    try{localStorage.removeItem(S_SESS);localStorage.removeItem(S_DRAFT);}catch(e){}
+    render();
+  });
 }
 
 //// バックアップ・復元 ////
